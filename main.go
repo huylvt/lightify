@@ -14,15 +14,13 @@ import (
 	"regexp"
 	"strings"
 
+	"lightify/minify/css"
+	"lightify/minify/js"
+
+	"lightify/minify"
+
 	"github.com/PuerkitoBio/goquery"
 	"github.com/gorilla/handlers"
-	"github.com/tdewolff/minify"
-	"github.com/tdewolff/minify/css"
-	"github.com/tdewolff/minify/html"
-	"github.com/tdewolff/minify/js"
-	"github.com/tdewolff/minify/json"
-	"github.com/tdewolff/minify/svg"
-	"github.com/tdewolff/minify/xml"
 	"github.com/vulcand/oxy/forward"
 )
 
@@ -45,30 +43,33 @@ func main() {
 		m.AddFunc("text/css", css.Minify)
 	}
 
-	if inArray(minifiable, "html") {
-		m.Add("text/html", &html.Minifier{
-			KeepConditionalComments: true,
-			KeepEndTags:             true,
-			KeepDocumentTags:        true,
-			KeepDefaultAttrVals:     true,
-		})
-	}
-
 	if inArray(minifiable, "js") {
 		m.AddFuncRegexp(regexp.MustCompile("^(application|text)/(x-)?(java|ecma)script$"), js.Minify)
 	}
 
-	if inArray(minifiable, "svg") {
-		m.AddFunc("image/svg+xml", svg.Minify)
-	}
+	/*
+		if inArray(minifiable, "html") {
+			m.Add("text/html", &html.Minifier{
+				KeepConditionalComments: true,
+				KeepEndTags:             true,
+				KeepDocumentTags:        true,
+				KeepDefaultAttrVals:     true,
+			})
+		}
 
-	if inArray(minifiable, "xml") {
-		m.AddFuncRegexp(regexp.MustCompile("[/+]xml$"), xml.Minify)
-	}
 
-	if inArray(minifiable, "json") {
-		m.AddFuncRegexp(regexp.MustCompile("[/+]json$"), json.Minify)
-	}
+		if inArray(minifiable, "svg") {
+			m.AddFunc("image/svg+xml", svg.Minify)
+		}
+
+		if inArray(minifiable, "xml") {
+			m.AddFuncRegexp(regexp.MustCompile("[/+]xml$"), xml.Minify)
+		}
+
+		if inArray(minifiable, "json") {
+			m.AddFuncRegexp(regexp.MustCompile("[/+]json$"), json.Minify)
+		}
+	*/
 
 	cssURLs := regexp.MustCompile(`(url|\@import)\((.*?)\)`)
 	forwarder := http.HandlerFunc(func(w http.ResponseWriter, req *http.Request) {
